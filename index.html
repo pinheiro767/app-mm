@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anatomia Drag & Drop</title>
+  <meta name="theme-color" content="#020617" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="fundo"></div>
+
+  <header class="hero">
+    <div>
+      <span class="pill">Anatomia Interativa</span>
+      <h1>Jogo Drag & Drop</h1>
+      <p>Arraste o número para o círculo correto da legenda. No celular, toque no número e depois no círculo.</p>
+    </div>
+
+    <div class="score">
+      <strong id="scoreText">0/25</strong>
+      <span>acertos</span>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-jogo="a">A • Plexo braquial e axila</button>
+    <button class="tab" data-jogo="b">B • Antebraço e palma</button>
+  </nav>
+
+  <main class="layout">
+    <section class="glass imagePanel">
+      <div class="panelHead">
+        <div>
+          <h2 id="tituloImagem">Imagem A — Plexo braquial e axila</h2>
+          <p id="subImagem">Observe a peça anatômica e relacione os números.</p>
+        </div>
+        <div class="miniBadge" id="totalBadge">25 itens</div>
+      </div>
+
+      <div class="imageTools">
+        <button id="zoomMenos">−</button>
+        <button id="zoomReset">100%</button>
+        <button id="zoomMais">+</button>
+      </div>
+
+      <div class="imageWrap" id="imageWrap">
+        <img id="imagemAtual" src="a.png" alt="Imagem anatômica numerada" />
+      </div>
+    </section>
+
+    <section class="glass gamePanel">
+      <div class="panelHead">
+        <div>
+          <h2>Encaixe os números</h2>
+          <p>Os números estão embaralhados para treino.</p>
+        </div>
+      </div>
+
+      <div class="chips" id="chips"></div>
+
+      <div class="actions">
+        <button class="btn primary" id="corrigirBtn">Corrigir</button>
+        <button class="btn" id="limparBtn">Limpar</button>
+        <button class="btn" id="gabaritoBtn">Gabarito</button>
+      </div>
+
+      <div class="resultado" id="resultado">Aguardando respostas...</div>
+
+      <div class="legendas" id="legendas"></div>
+    </section>
+  </main>
+
+  <footer>
+    PWA responsivo • pronto para GitHub Pages • senha do gabarito: 2026
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
