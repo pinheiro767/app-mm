@@ -5,32 +5,32 @@ const jogos = {
     titulo: "Imagem A — Plexo braquial e axila",
     subtitulo: "Plexo braquial e axila — vista anterior.",
     imagem: "a.png",
-    gabarito: const gabaritoA = {
-  19: "Músculo subescapular",
-  8: "Peitoral maior (origem comum)",
-  17: "Nervo ulnar",
-  25: "Serrátil anterior",
-  3: "Porção clavicular do peitoral maior",
-  13: "Artéria torácica lateral",
-  10: "Cordão lateral do plexo braquial",
-  23: "Latíssimo do dorso",
-  21: "Linfonodo axilar",
-  14: "Nervo musculocutâneo",
-  2: "Porção esternocostal do peitoral maior",
-  15: "Nervo mediano",
-  16: "Artéria braquial",
-  12: "Veia axilar",
-  20: "Nervo toracodorsal",
-  5: "Músculo subclávio",
-  18: "Nervo cutâneo medial do braço",
-  11: "Artéria axilar",
-  7: "Músculo deltóide",
-  1: "Reto abdominal",
-  9: "Coracobraquial + cabeça curta do bíceps",
-  22: "Artéria toracodorsal",
-  24: "Músculo redondo maior",
-  4: "Corpo da clavícula",
-  6: "Peitoral menor"
+    gabarito: {
+      19: "Músculo subescapular",
+      8: "Peitoral maior (origem comum)",
+      17: "Nervo ulnar",
+      25: "Serrátil anterior",
+      3: "Porção clavicular do peitoral maior",
+      13: "Artéria torácica lateral",
+      10: "Cordão lateral do plexo braquial",
+      23: "Latíssimo do dorso",
+      21: "Linfonodo axilar",
+      14: "Nervo musculocutâneo",
+      2: "Porção esternocostal do peitoral maior",
+      15: "Nervo mediano",
+      16: "Artéria braquial",
+      12: "Veia axilar",
+      20: "Nervo toracodorsal",
+      5: "Músculo subclávio",
+      18: "Nervo cutâneo medial do braço",
+      11: "Artéria axilar",
+      7: "Músculo deltóide",
+      1: "Reto abdominal",
+      9: "Coracobraquial + cabeça curta do bíceps",
+      22: "Artéria toracodorsal",
+      24: "Músculo redondo maior",
+      4: "Corpo da clavícula",
+      6: "Peitoral menor"
     }
   },
 
@@ -109,15 +109,19 @@ function trocarJogo(id) {
   selecionado = null;
   zoom = 1;
 
-  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.jogo === id));
+  document.querySelectorAll(".tab").forEach(t => {
+    t.classList.toggle("active", t.dataset.jogo === id);
+  });
 
   const jogo = jogos[id];
+
   imagemAtual.src = jogo.imagem;
   imagemAtual.style.transform = "scale(1)";
   tituloImagem.textContent = jogo.titulo;
   subImagem.textContent = jogo.subtitulo;
 
   const total = Object.keys(jogo.gabarito).length;
+
   totalBadge.textContent = total + " itens";
   scoreText.textContent = "0/" + total;
   resultado.textContent = "Aguardando respostas...";
@@ -128,10 +132,12 @@ function trocarJogo(id) {
 
 function criarNumeros() {
   chips.innerHTML = "";
+
   const nums = Object.keys(gabaritoAtual());
 
   shuffle(nums).forEach(num => {
     const chip = document.createElement("button");
+
     chip.className = "chip";
     chip.textContent = num;
     chip.draggable = true;
@@ -143,7 +149,11 @@ function criarNumeros() {
 
     chip.addEventListener("click", () => {
       selecionado = num;
-      document.querySelectorAll(".chip").forEach(c => c.classList.remove("selected"));
+
+      document.querySelectorAll(".chip").forEach(c => {
+        c.classList.remove("selected");
+      });
+
       chip.classList.add("selected");
     });
 
@@ -154,7 +164,10 @@ function criarNumeros() {
 function criarLegendas() {
   legendas.innerHTML = "";
 
-  const entradas = Object.entries(gabaritoAtual()).map(([num, nome]) => ({ num, nome }));
+  const entradas = Object.entries(gabaritoAtual()).map(([num, nome]) => ({
+    num,
+    nome
+  }));
 
   shuffle(entradas).forEach(item => {
     const row = document.createElement("div");
@@ -165,14 +178,23 @@ function criarLegendas() {
     circle.className = "circle";
     circle.textContent = respostas[item.num] || "";
 
-    circle.addEventListener("dragover", e => e.preventDefault());
+    circle.addEventListener("dragover", e => {
+      e.preventDefault();
+    });
 
     circle.addEventListener("drop", e => {
       e.preventDefault();
+
       const num = e.dataTransfer.getData("text/plain");
-      respostas[item.num] = num;
-      salvar();
-      criarLegendas();
+
+      if (num === item.num) {
+        respostas[item.num] = num;
+        salvar();
+        criarLegendas();
+        confetePequeno();
+      } else {
+        erroVisual(circle);
+      }
     });
 
     circle.addEventListener("click", () => {
@@ -180,14 +202,20 @@ function criarLegendas() {
         pulse(circle);
         return;
       }
-      respostas[item.num] = selecionado;
-      salvar();
-      criarLegendas();
+
+      if (selecionado === item.num) {
+        respostas[item.num] = selecionado;
+        salvar();
+        criarLegendas();
+        confetePequeno();
+      } else {
+        erroVisual(circle);
+      }
     });
 
     const text = document.createElement("div");
     text.className = "label";
-    text.innerHTML = `<strong>${item.nome}</strong><span>solte o número aqui</span>`;
+    text.innerHTML = `<strong>${item.nome}</strong><span>solte o número correto aqui</span>`;
 
     row.appendChild(circle);
     row.appendChild(text);
@@ -197,13 +225,27 @@ function criarLegendas() {
 
 function pulse(el) {
   el.animate(
-    [{ transform: "scale(1)" }, { transform: "scale(1.12)" }, { transform: "scale(1)" }],
+    [
+      { transform: "scale(1)" },
+      { transform: "scale(1.12)" },
+      { transform: "scale(1)" }
+    ],
     { duration: 260 }
   );
 }
 
+function erroVisual(el) {
+  pulse(el);
+  el.classList.add("wrong");
+
+  setTimeout(() => {
+    el.classList.remove("wrong");
+  }, 500);
+}
+
 function corrigir() {
   let acertos = 0;
+
   const gab = gabaritoAtual();
   const total = Object.keys(gab).length;
 
@@ -216,29 +258,58 @@ function corrigir() {
     if (resp === correto) {
       acertos++;
       row.classList.add("correct");
-    } else if (resp) {
-      row.classList.add("wrong");
     }
   });
 
   const nota = ((acertos / total) * 10).toFixed(1);
+
   scoreText.textContent = `${acertos}/${total}`;
   resultado.innerHTML = `<b>${acertos}/${total}</b> acertos · nota <b>${nota}</b>`;
 
-  if (acertos === total) confeteForte();
-  else if (acertos >= total * 0.7) confeteLeve();
+  if (acertos === total) {
+    confeteForte();
+  } else if (acertos >= total * 0.7) {
+    confeteLeve();
+  }
+}
+
+function confetePequeno() {
+  confetti({
+    particleCount: 35,
+    spread: 55,
+    origin: { y: 0.75 }
+  });
 }
 
 function confeteLeve() {
-  confetti({ particleCount: 180, spread: 120, origin: { y: 0.65 } });
+  confetti({
+    particleCount: 180,
+    spread: 120,
+    origin: { y: 0.65 }
+  });
 }
 
 function confeteForte() {
   const end = Date.now() + 3200;
+
   (function frame() {
-    confetti({ particleCount: 8, angle: 60, spread: 70, origin: { x: 0 } });
-    confetti({ particleCount: 8, angle: 120, spread: 70, origin: { x: 1 } });
-    if (Date.now() < end) requestAnimationFrame(frame);
+    confetti({
+      particleCount: 8,
+      angle: 60,
+      spread: 70,
+      origin: { x: 0 }
+    });
+
+    confetti({
+      particleCount: 8,
+      angle: 120,
+      spread: 70,
+      origin: { x: 1 }
+    });
+
+    if (Date.now() < end) {
+      requestAnimationFrame(frame);
+    }
   })();
 }
 
@@ -249,15 +320,21 @@ function limpar() {
   salvar();
   selecionado = null;
 
-  document.querySelectorAll(".chip").forEach(c => c.classList.remove("selected"));
+  document.querySelectorAll(".chip").forEach(c => {
+    c.classList.remove("selected");
+  });
+
   const total = Object.keys(gabaritoAtual()).length;
+
   scoreText.textContent = "0/" + total;
   resultado.textContent = "Aguardando respostas...";
+
   criarLegendas();
 }
 
 function gabaritoSecreto() {
   const senha = prompt("Digite a senha do gabarito:");
+
   if (senha !== SENHA) {
     alert("Senha incorreta.");
     return;
